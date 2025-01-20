@@ -346,7 +346,7 @@ void AudioSynthWaveformModulated::update(void)
 		if (shapedata) {
 			magnitude15 = signed_saturate_rshift(magnitude, 16, 1);
 			for (i=0; i < AUDIO_BLOCK_SAMPLES; i++) {
-				uint32_t width = ((shapedata->data[i] + 0x8000) & 0xFFFF) << 16;
+				uint32_t width = ((shapedata->data[i] + pw_offset + 0x8000) & 0xFFFF) << 16; //ws
 				if (phasedata[i] < width) {
 					*bp++ = magnitude15;
 				} else {
@@ -372,7 +372,7 @@ void AudioSynthWaveformModulated::update(void)
 		{
 		  for (i=0; i < AUDIO_BLOCK_SAMPLES; i++)
 		  {
-		    uint32_t width = ((shapedata->data[i] + 0x8000) & 0xFFFF) << 16;
+		    uint32_t width = ((shapedata->data[i] + pw_offset + 0x8000) & 0xFFFF) << 16; // ws
 		    int32_t val = band_limit_waveform.generate_pulse (phasedata[i], width, i) ;
 		    *bp++ = (int16_t) ((val * magnitude) >> 16) ;
 		  }

@@ -186,7 +186,7 @@ class AudioSynthWaveformModulated : public AudioStream
 public:
 	AudioSynthWaveformModulated(void) : AudioStream(2, inputQueueArray),
 		phase_accumulator(0), phase_increment(0), modulation_factor(32768),
-		magnitude(0), arbdata(NULL), sample(0), tone_offset(0),
+		magnitude(0), arbdata(NULL), sample(0), tone_offset(0), pw_offset(0), //ws
 		tone_type(WAVEFORM_SINE), modulation_type(0) {
 	}
 
@@ -214,6 +214,14 @@ public:
 			n = 1.0f;
 		}
 		tone_offset = n * 32767.0f;
+	}
+    void pulsewidth_offset(float n) {
+		if (n < -1.0f) {
+			n = -1.0f;
+		} else if (n > 1.0f) {
+			n = 1.0f;
+		}
+		pw_offset = n * 32767.0f; //ws
 	}
 	void begin(short t_type) {
 		tone_type = t_type;
@@ -261,7 +269,8 @@ private:
 	const int16_t *arbdata;
 	uint32_t phasedata[AUDIO_BLOCK_SAMPLES];
 	int16_t  sample; // for WAVEFORM_SAMPLE_HOLD
-	int16_t  tone_offset;
+	int16_t  tone_offset; //ws
+	int16_t  pw_offset;
 	uint8_t  tone_type;
 	uint8_t  modulation_type;
         BandLimitedWaveform band_limit_waveform ;
