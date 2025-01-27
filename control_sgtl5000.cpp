@@ -563,7 +563,8 @@ bool AudioControlSGTL5000::enable(const unsigned extMCLK, const uint32_t pllFreq
 		write(CHIP_ANA_POWER, 0x40FF | (1<<10) | (1<<8) ); // power up: lineout, hp, adc, dac, PLL_POWERUP, VCOAMP_POWERUP
 	} else {
 		//SGTL is I2S Slave
-		write(CHIP_ANA_POWER, 0x40FF); // power up: lineout, hp, adc, dac
+		//write(CHIP_ANA_POWER, 0x40FF); // power up: lineout, hp, adc, dac
+		write(CHIP_ANA_POWER, 0x40FB); // power up: lineout, hp, adc, dac, Not Capless hp
 	}
 
 	write(CHIP_DIG_POWER, 0x0073); // power up all digital stuff
@@ -595,6 +596,23 @@ bool AudioControlSGTL5000::enable(const unsigned extMCLK, const uint32_t pllFreq
 unsigned int AudioControlSGTL5000::read(unsigned int reg)
 {
 	unsigned int val;
+	Wire.beginTransmission(i2c_addr);
+	Wire.write(reg >> 8);
+	Wire.write(reg);
+	if (Wire.endTransmission(false) != 0) return 0;
+	if (Wire.requestFrom((int)i2c_addr, 2) < 2) return 0;
+	val = Wire.read() << 8;
+	val |= Wire.read();
+	return val;
+}
+
+
+unsigned int AudioControlSGTL5000::read_b4_enable(unsigned int reg)
+{
+	unsigned int val;
+    Wire.begin();
+	delay(5);
+
 	Wire.beginTransmission(i2c_addr);
 	Wire.write(reg >> 8);
 	Wire.write(reg);

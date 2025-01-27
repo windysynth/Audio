@@ -34,6 +34,9 @@
 #define AUDIO_HEADPHONE_DAC 0
 #define AUDIO_HEADPHONE_LINEIN 1
 
+// ws. used to avoid calling enable() when it is already enabled
+#define SGTL5000_CHECK_PWRON_DEFAULT    
+
 class AudioControlSGTL5000 : public AudioControl
 {
 public:
@@ -41,7 +44,7 @@ public:
 	void setAddress(uint8_t level);
 	bool enable(void);//For Teensy LC the SGTL acts as master, for all other Teensys as slave.
 	bool enable(const unsigned extMCLK, const uint32_t pllFreq = (4096.0l * AUDIO_SAMPLE_RATE_EXACT) ); //With extMCLK > 0, the SGTL acts as Master
-	bool disable(void) { return false; }
+	bool disable(void) {return false; } 
 	bool volume(float n) { return volumeInteger(n * 129 + 0.499f); }
 	bool inputLevel(float n) {return false;}
 	bool muteHeadphone(void) { return write(0x0024, ana_ctrl | (1<<4)); }
@@ -105,6 +108,7 @@ public:
 	unsigned short surroundSoundDisable(void);
 	void killAutomation(void) { semi_automated=false; }
 	void setMasterMode(uint32_t freqMCLK_in);
+	unsigned int read_b4_enable(unsigned int reg); // ws, added to avoid enabling twice after exting bootloader 
 
 protected:
 	bool muted;
@@ -112,7 +116,7 @@ protected:
 	uint16_t ana_ctrl;
 	uint8_t i2c_addr;
 	unsigned char calcVol(float n, unsigned char range);
-	unsigned int read(unsigned int reg);
+	unsigned int read(unsigned int reg); 
 	bool write(unsigned int reg, unsigned int val);
 	unsigned int modify(unsigned int reg, unsigned int val, unsigned int iMask);
 	unsigned short dap_audio_eq_band(uint8_t bandNum, float n);
