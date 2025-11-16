@@ -87,8 +87,9 @@
 #include "effect_granular.h"
 #include "effect_combine.h"
 #include "effect_rectifier.h"
-#include "effect_daisysp.h"
+//#include "effect_daisysp.h"
 #include "effect_wavefolder.h"
+//#include "effect_compressor.h"
 #include "filter_biquad.h"
 #include "filter_fir.h"
 #include "filter_variable.h"
@@ -140,6 +141,6 @@
 #include "synth_simple_drum.h"
 #include "synth_pwm.h"
 #include "synth_wavetable.h"
-#include "synth_daisysp.h"
+//#include "synth_daisysp.h"
 
 #endif
