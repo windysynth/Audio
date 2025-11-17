@@ -51,6 +51,10 @@ public:
 	bool unmuteHeadphone(void) { return write(0x0024, ana_ctrl & ~(1<<4)); }
 	bool muteLineout(void) { return write(0x0024, ana_ctrl | (1<<8)); }
 	bool unmuteLineout(void) { return write(0x0024, ana_ctrl & ~(1<<8)); }
+    //ws, VAG_POWERUP to 0, 200-400ms before HEADPNONE_POWERUP and LINEOUT_POWERUP to 0
+	bool vagrampdown(void) { return write(0x0030,read(0x0030) & ~(0x0080)) ; } //we, VAG_POWERUP
+	bool powerdownDACHp(void) { return write(0x0030,read(0x0030) & ~(0x0019)) ; } //ws, DAC_,HEADPHONE_,LINOUT_POWERUP
+	bool powerdownDAP(void) { return write(0x0030,read(0x0002) & ~(0x0010)) ; } //ws, DAP_POWERUP 
 	bool inputSelect(int n) {
 		if (n == AUDIO_INPUT_LINEIN) {
 			return write(0x0020, 0x055) // +7.5dB gain (1.3Vp-p full scale)
