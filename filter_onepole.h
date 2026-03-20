@@ -1,7 +1,8 @@
 /* Audio Library for Teensy 3.X
- * Copyright (c) 2014, Paul Stoffregen, paul@pjrc.com
- *
- * Development of this audio library was funded by PJRC.COM, LLC by sales of
+ * Copyright (c) Tim King, 26 Jan 2025 
+ 
+ * This filter design was based on other modules in the Teensy Audio Library.
+ * Development of the teensy audio library was funded by PJRC.COM, LLC by sales of
  * Teensy and Audio Adaptor boards.  Please support PJRC's efforts to develop
  * open source software by purchasing Teensy or other PJRC products.
  *

@@ -44,7 +44,7 @@
 // This increases the exponential approximation accuracy from
 // about 0.341% error to only 0.012% error, which probably makes
 // no audible difference.
-//#define IMPROVE_EXPONENTIAL_ACCURACY
+#define IMPROVE_EXPONENTIAL_ACCURACY
 
 #if defined(__ARM_ARCH_7EM__)
 
