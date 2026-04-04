@@ -187,11 +187,15 @@ void AudioSynthWaveform::update(void)
 		break;
 
 	case WAVEFORM_BANDLIMIT_PULSE:
+	case WAVEFORM_BANDLIMIT_PULSE_REVERSE:
 		for (i=0; i < AUDIO_BLOCK_SAMPLES; i++)
 		{
 		  int32_t new_ph = ph + inc ;
 		  int32_t val = band_limit_waveform.generate_pulse (new_ph, pulse_width, i) ;
-		  *bp++ = (int16_t) ((val * magnitude) >> 16) ;
+		  if (tone_type == WAVEFORM_BANDLIMIT_PULSE_REVERSE) // ws
+		    *bp++ = (int16_t) (val * -magnitude) >> 16 ;
+		  else
+		    *bp++ = (int16_t) (val * magnitude) >> 16 ;  // ws: just this b4 adding REVERSE switch
 		  ph = new_ph ;
 		}
 		break;
@@ -236,7 +240,8 @@ void AudioSynthWaveformModulated::update(void)
 	shapedata = receiveReadOnly(1);
 
 	// Pre-compute the phase angle for every output sample of this update
-	ph = phase_accumulator;
+	//ph = phase_accumulator;
+	ph = phase_accumulator + phase_offset; //ws
 	priorphase = phasedata[AUDIO_BLOCK_SAMPLES-1];
 	if (moddata && modulation_type == 0) {
 		// Frequency Modulation
@@ -368,13 +373,15 @@ void AudioSynthWaveformModulated::update(void)
 		break;
 
 	case WAVEFORM_BANDLIMIT_PULSE:
+	case WAVEFORM_BANDLIMIT_PULSE_REVERSE:
 		if (shapedata)
 		{
 		  for (i=0; i < AUDIO_BLOCK_SAMPLES; i++)
 		  {
 		    uint32_t width = ((shapedata->data[i] + pw_offset + 0x8000) & 0xFFFF) << 16; // ws
 		    int32_t val = band_limit_waveform.generate_pulse (phasedata[i], width, i) ;
-		    *bp++ = (int16_t) ((val * magnitude) >> 16) ;
+		    val = (int16_t) ((val * magnitude) >> 16) ;
+		    *bp++ = tone_type == WAVEFORM_BANDLIMIT_PULSE_REVERSE ? (int16_t) -val : (int16_t) +val ; //ws
 		  }
 		  break;
 		} // else fall through to orginary square without shape modulation
@@ -455,6 +462,7 @@ void AudioSynthWaveformModulated::update(void)
 		}
 		break;
 	}
+	phase_accumulator = ph - phase_offset; //ws
 
 	if (tone_offset) {
 		bp = block->data;

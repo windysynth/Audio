@@ -50,6 +50,7 @@ extern const int16_t AudioWaveformSine[257];
 #define WAVEFORM_BANDLIMIT_SAWTOOTH_REVERSE 10
 #define WAVEFORM_BANDLIMIT_SQUARE 11
 #define WAVEFORM_BANDLIMIT_PULSE  12
+#define WAVEFORM_BANDLIMIT_PULSE_REVERSE 13
 
 
 typedef struct step_state
@@ -151,7 +152,7 @@ public:
 		tone_type = t_type;
 		if (t_type == WAVEFORM_BANDLIMIT_SQUARE)
 		  band_limit_waveform.init_square (phase_increment) ;
-		else if (t_type == WAVEFORM_BANDLIMIT_PULSE)
+		else if (t_type == WAVEFORM_BANDLIMIT_PULSE || t_type == WAVEFORM_BANDLIMIT_PULSE_REVERSE) // ws
 		  band_limit_waveform.init_pulse (phase_increment, pulse_width) ;
 		else if (t_type == WAVEFORM_BANDLIMIT_SAWTOOTH || t_type == WAVEFORM_BANDLIMIT_SAWTOOTH_REVERSE)
 		  band_limit_waveform.init_sawtooth (phase_increment) ;
@@ -185,8 +186,8 @@ class AudioSynthWaveformModulated : public AudioStream
 {
 public:
 	AudioSynthWaveformModulated(void) : AudioStream(2, inputQueueArray),
-		phase_accumulator(0), phase_increment(0), modulation_factor(32768),
-		magnitude(0), arbdata(NULL), sample(0), tone_offset(0), pw_offset(0), //ws
+		phase_accumulator(0), phase_increment(0), phase_offset(0), modulation_factor(32768), // ws phase_offset()
+		magnitude(0), arbdata(NULL), sample(0), tone_offset(0), pw_offset(0), //ws pw_offset
 		tone_type(WAVEFORM_SINE), modulation_type(0) {
 	}
 
@@ -198,6 +199,15 @@ public:
 		}
 		phase_increment = freq * (4294967296.0f / AUDIO_SAMPLE_RATE_EXACT);
 		if (phase_increment > 0x7FFE0000u) phase_increment = 0x7FFE0000;
+	}	
+    void phase(float angle) {
+		if (angle < 0.0f) {
+			angle = 0.0;
+		} else if (angle > 360.0f) {
+			angle = angle - 360.0f;
+			if (angle >= 360.0f) return;
+		}
+		phase_offset = angle * (float)(4294967296.0 / 360.0);
 	}
 	void amplitude(float n) {	// 0 to 1.0
 		if (n < 0) {
@@ -224,10 +234,11 @@ public:
 		pw_offset = n * 32767.0f; //ws
 	}
 	void begin(short t_type) {
+		phase_offset = 0; // ws
 		tone_type = t_type;
 		if (t_type == WAVEFORM_BANDLIMIT_SQUARE)
 		  band_limit_waveform.init_square (phase_increment) ;
-		else if (t_type == WAVEFORM_BANDLIMIT_PULSE)
+		else if (t_type == WAVEFORM_BANDLIMIT_PULSE || t_type == WAVEFORM_BANDLIMIT_PULSE_REVERSE) // ws
 		  band_limit_waveform.init_pulse (phase_increment, 0x80000000u) ;
 		else if (t_type == WAVEFORM_BANDLIMIT_SAWTOOTH || t_type == WAVEFORM_BANDLIMIT_SAWTOOTH_REVERSE)
 		  band_limit_waveform.init_sawtooth (phase_increment) ;
@@ -235,6 +246,7 @@ public:
 	void begin(float t_amp, float t_freq, short t_type) {
 		amplitude(t_amp);
 		frequency(t_freq);
+		phase_offset = 0; // ws
 		begin (t_type) ;
 	}
 	void arbitraryWaveform(const int16_t *data, float maxFreq) {
@@ -264,6 +276,7 @@ private:
 	audio_block_t *inputQueueArray[2];
 	uint32_t phase_accumulator;
 	uint32_t phase_increment;
+	uint32_t phase_offset;
 	uint32_t modulation_factor;
 	int32_t  magnitude;
 	const int16_t *arbdata;
