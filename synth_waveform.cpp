@@ -297,7 +297,8 @@ void AudioSynthWaveformModulated::update(void)
 			ph += inc;
 		}
 	}
-	phase_accumulator = ph;
+	//phase_accumulator = ph;
+	phase_accumulator = ph - phase_offset; //ws
 
 	// If the amplitude is zero, no output, but phase still increments properly
 	if (magnitude == 0) {

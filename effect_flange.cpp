@@ -203,7 +203,10 @@ void AudioEffectFlange::update(void)
       // Do the interpolation
       frac = (l_delay_rate_index >> 1) &0x7fff;
       frac = (( (int)(l_delayline[idx1] - l_delayline[idx])*frac) >> 15);
-      *bp++ = (l_delayline[l_circ_idx]+ l_delayline[idx] + frac)/2;
+      if(_dryOn)
+          *bp++ = (l_delayline[l_circ_idx]+ l_delayline[idx] + frac)/2;
+      else
+          *bp++ = ( l_delayline[idx] + frac)/2;
 
       l_delay_rate_index += delay_rate_incr;
       if(l_delay_rate_index & 0x80000000) {

@@ -43,6 +43,7 @@ public:
 
   boolean begin(short *delayline,int d_length,int delay_offset,int d_depth,float delay_rate);
   boolean voices(int delay_offset,int d_depth,float delay_rate);
+  void setDryOn(bool dryOn) { _dryOn = dryOn;}
   virtual void update(void);
   
 private:
@@ -54,6 +55,7 @@ private:
   int delay_offset_idx;
   int   delay_rate_incr;
   unsigned int l_delay_rate_index;
+  bool _dryOn = true; // true for regular flange 
 };
 
 #endif
